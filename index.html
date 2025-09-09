@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BreedFinder - Professional Dog Breed Directory</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 60px 18px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .breed-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .suggestion-btn {
+            background: rgba(102,126,234,0.1);
+            border: 1px solid rgba(102,126,234,0.3);
+            border-radius: 25px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #667eea;
+        }
+
+        .suggestion-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            animation: spin 1s linear infinite;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .breed-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .breed-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+
+        .breed-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+        }
+
+        .breed-info {
+            padding: 2rem;
+        }
+
+        .breed-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+            text-transform: capitalize;
+        }
+
+        .breed-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .breed-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            background: rgba(102,126,234,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .error {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-top: 2rem;
+        }
+
+        .error i {
+            font-size: 3rem;
+            color: #e74c3c;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .logo h1 {
+                font-size: 2rem;
+            }
+            
+            .search-section {
+                padding: 1.5rem;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-dog"></i>
+                <h1>BreedFinder Pro</h1>
+            </div>
+            <p class="tagline">Professional Dog Breed Directory & Information System</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search for a dog breed (e.g., Akita, Labrador)..." id="searchInput">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+            
+            <div class="breed-suggestions">
+                <button class="suggestion-btn" data-breed="labrador">Labrador</button>
+                <button class="suggestion-btn" data-breed="akita">Akita</button>
+                <button class="suggestion-btn" data-breed="bulldog">Bulldog</button>
+                <button class="suggestion-btn" data-breed="poodle">Poodle</button>
+                <button class="suggestion-btn" data-breed="husky">Husky</button>
+                <button class="suggestion-btn" data-breed="beagle">Beagle</button>
+                <button class="suggestion-btn" data-breed="rottweiler">Rottweiler</button>
+            </div>
+        </div>
+
+        <div id="results">
+            <div style="text-align: center; padding: 3rem; color: rgba(255,255,255,0.8);">
+                <i class="fas fa-spinner" style="font-size: 3rem; animation: spin 1s linear infinite; color: rgba(255,255,255,0.6); margin-bottom: 1rem;"></i>
+                <p>Loading popular breeds...</p>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>&copy; 2025 BreedFinder. Professional dog breed information for enthusiasts and professionals. This webpage was created by Francisco Macias. </p>
+        </footer>
+    </div>
+
+    <script>
+        class BreedFinder {
+            constructor() {
+                this.searchInput = document.getElementById('searchInput');
+                this.searchBtn = document.getElementById('searchBtn');
+                this.results = document.getElementById('results');
+                this.breedData = this.initializeBreedData();
+                
+                this.bindEvents();
+            }
+
+            initializeBreedData() {
+                return {
+                    labrador: {
+                        description: "Labrador Retrievers are friendly, outgoing, and active companions. Labs are famously friendly and outgoing. They are typically excellent with kids and other dogs. Their eagerness to please makes them easy to train.",
+                        stats: ["Large Size", "High Energy", "Family Friendly", "Easy to Train", "Good with Kids"]
+                    },
+                    golden: {
+                        description: "Golden Retrievers are intelligent, friendly, and devoted. They're serious workers at hunting and field work, as guides for the blind, and in search-and-rescue. They also enjoy being a family companion.",
+                        stats: ["Large Size", "High Energy", "Family Friendly", "Intelligent", "Gentle Nature"]
+                    },
+                    bulldog: {
+                        description: "Bulldogs are gentle, affectionate, and make excellent companions. They're known for their loose, wrinkled skin and distinctive pushed-in nose. Despite their tough appearance, they're very gentle dogs.",
+                        stats: ["Medium Size", "Low Energy", "Calm Nature", "Good Apartment Dogs", "Friendly"]
+                    },
+                    poodle: {
+                        description: "Poodles are exceptional jumpers, so pet parents should keep that in mind. They're also water retrievers and were originally bred to be working dogs. Poodles are highly intelligent and trainable.",
+                        stats: ["Medium-Large Size", "High Intelligence", "Hypoallergenic", "Active", "Elegant"]
+                    },
+                    husky: {
+                        description: "Siberian Huskies are pack dogs, and they need an owner who is the clear leader of the pack. They are beautiful, athletic dogs who need a job to do. They were bred to run long distances in harsh conditions.",
+                        stats: ["Large Size", "Very High Energy", "Pack Mentality", "Cold Weather", "Athletic"]
+                    },
+                    beagle: {
+                        description: "Beagles are loving, lovable, happy, easygoing, and companionable. They're hounds, so they like to roam and explore. Originally bred to hunt hare, Beagles are still driven by scent.",
+                        stats: ["Medium Size", "Moderate Energy", "Scent Hound", "Family Friendly", "Vocal"]
+                    },
+                    rottweiler: {
+                        description: "Rottweilers are confident, courageous, and calm. They have a self-assured aloofness and don't make friends immediately. They are affectionate with family and can be quite silly and playful.",
+                        stats: ["Large Size", "Moderate Energy", "Guardian", "Loyal", "Confident"]
+                    },
+                    australian: {
+                        description: "Australian Shepherds are intelligent working dogs with strong herding and guarding instincts. They are loyal companions and have the stamina to work all day long.",
+                        stats: ["Medium-Large Size", "Very High Energy", "Herding Dog", "Intelligent", "Active"]
+                    },
+                    germanshepherd: {
+                        description: "German Shepherds are extremely versatile, serving as family companions, guard dogs, and in military service. They're large, athletic dogs known for their loyalty and courage.",
+                        stats: ["Large Size", "High Energy", "Versatile", "Loyal", "Intelligent"]
+                    },
+                    chihuahua: {
+                        description: "Chihuahuas are tiny dogs with huge personalities. A national symbol of Mexico, these alert and amusing 'purse dogs' stand among the oldest breeds of the Americas.",
+                        stats: ["Toy Size", "Moderate Energy", "Alert", "Sassy", "Compact"]
+                    }
+                };
+            }
+
+            bindEvents() {
+                this.searchBtn.addEventListener('click', () => this.handleSearch());
+                this.searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.handleSearch();
+                });
+                
+                document.querySelectorAll('.suggestion-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const breed = btn.dataset.breed;
+                        this.searchInput.value = breed;
+                        this.searchBreed(breed);
+                    });
+                });
+            }
+
+            handleSearch() {
+                const query = this.searchInput.value.trim().toLowerCase();
+                if (!query) return;
+                
+                this.searchBreed(query);
+            }
+
+            async searchBreed(query) {
+                this.showLoading();
+                
+                try {
+                    // First, get available breeds
+                    const breedsResponse = await fetch('https://dog.ceo/api/breeds/list/all');
+                    const breedsData = await breedsResponse.json();
+                    
+                    if (breedsData.status !== 'success') {
+                        throw new Error('Failed to fetch breed list');
+                    }
+                    
+                    // Find matching breeds
+                    const breeds = Object.keys(breedsData.message);
+                    const matchingBreeds = breeds.filter(breed => 
+                        breed.toLowerCase().includes(query.toLowerCase()) ||
+                        query.toLowerCase().includes(breed.toLowerCase())
+                    );
+                    
+                    if (matchingBreeds.length === 0) {
+                        this.showError('No matching breeds found. Please try a different search term.');
+                        return;
+                    }
+                    
+                    // Get images and data for matching breeds
+                    const breedPromises = matchingBreeds.slice(0, 6).map(async (breed) => {
+                        try {
+                            const imageResponse = await fetch(`https://dog.ceo/api/breed/${breed}/images/random`);
+                            const imageData = await imageResponse.json();
+                            
+                            return {
+                                name: breed,
+                                image: imageData.status === 'success' ? imageData.message : null,
+                                ...this.getBreedInfo(breed)
+                            };
+                        } catch (error) {
+                            return {
+                                name: breed,
+                                image: null,
+                                ...this.getBreedInfo(breed)
+                            };
+                        }
+                    });
+                    
+                    const results = await Promise.all(breedPromises);
+                    this.displayResults(results.filter(result => result !== null));
+                    
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.showError('Failed to fetch breed information. Please try again.');
+                }
+            }
+
+            getBreedInfo(breed) {
+                const breedKey = breed.toLowerCase();
+                if (this.breedData[breedKey]) {
+                    return this.breedData[breedKey];
+                }
+                
+                // Default info for breeds not in our database
+                return {
+                    description: `The ${breed} is a wonderful dog breed with unique characteristics. Each dog is individual and may vary in temperament and needs. Research more about this breed to learn about their specific care requirements and personality traits.`,
+                    stats: ["Unique Breed", "Individual Traits", "Research Recommended"]
+                };
+            }
+
+            showLoading() {
+                this.results.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>Searching for breed information...</p>
+                    </div>
+                `;
+            }
+
+            showError(message) {
+                this.results.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div class="error-message">${message}</div>
+                    </div>
+                `;
+            }
+
+            displayResults(breeds) {
+                if (breeds.length === 0) {
+                    this.showError('No breed information available.');
+                    return;
+                }
+
+                const resultsHTML = breeds.map(breed => `
+                    <div class="breed-card">
+                        ${breed.image ? 
+                            `<img src="${breed.image}" alt="${breed.name}" class="breed-image" loading="lazy">` : 
+                            `<div class="breed-image" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 2rem;"><i class="fas fa-dog"></i></div>`
+                        }
+                        <div class="breed-info">
+                            <h3 class="breed-name">${breed.name.replace(/([a-z])([A-Z])/g, '$1 $2')}</h3>
+                            <p class="breed-description">${breed.description}</p>
+                            <div class="breed-stats">
+                                ${breed.stats.map(stat => `<span class="stat">${stat}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                this.results.innerHTML = `<div class="results-grid">${resultsHTML}</div>`;
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            new BreedFinder();
+        });
+    </script>
+</body>
+</html>
